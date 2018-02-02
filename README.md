@@ -1,2 +1,2 @@
 # Todo-API-with-Flask
-Take a working Angular.js Todo application and get it running via REST APIs developed in the Flask. The Angular.js app uses the ng-resource plugin to automatically work with REST.
+Take a working Angular.js Todo application and get it running via REST APIs developed in the Flask. The Angular.js app uses the ng-resource plugin to automatically work with REST. This is a challenge issued by www.teamtreehouse.com for a Python Web Development Tech Degree Project. All of the AngularJS is considered built by teamtreehouse for this project(unless otherwise noted), but may be edited by me at some point.
