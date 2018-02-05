@@ -7,6 +7,7 @@ from peewee import *
 
 import config
 
+
 def initialize():
     DATABASE.connect()
     DATABASE.create_tables([User, Todo], safe=True)
