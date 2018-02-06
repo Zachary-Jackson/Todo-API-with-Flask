@@ -1,3 +1,5 @@
+from operator import attrgetter
+
 from flask import Blueprint, jsonify
 
 from flask.ext.restful import (Api, fields, inputs, marshal,
@@ -15,7 +17,7 @@ def todo_validation(todo_id):
     '''This tries to find a todo instand with the given id. If not
     this function returns False'''
     try:
-        todo = models.Todo.get(models.Todo.id == todo_id)
+        models.Todo.get(models.Todo.id == todo_id)
     except models.Todo.DoesNotExist:
         return False
     else:
@@ -25,10 +27,30 @@ def todo_validation(todo_id):
 class TodoList(Resource):
     '''This class defines what happens when HTTP requests are used without
     an item id number.'''
+    def __init__(self):
+        '''Initializes reqparse to be used later on.'''
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'name',
+            required=True,
+            help='You must provide a name for your Todo object.',
+            location=['form', 'json']
+        )
+        super().__init__()
+
     def get(self):
         '''Returns all Todo objects in the database.'''
-        todos = [marshal(todo, TODO_FIELDS) for todo in models.Todo.select()]
+        sorted_todos = sorted(
+            models.Todo.select(), key=attrgetter('created_at'), reverse=True)
+        todos = [marshal(todo, TODO_FIELDS) for todo in sorted_todos]
         return todos
+
+    @marshal_with(TODO_FIELDS)
+    def post(self):
+        args = self.reqparse.parse_args()
+        todo = models.Todo.create(**args)
+        return ('', 201,
+                {'Location': url_for('resources.todo.todo', id=todo.id)})
 
 
 class Todo(Resource):
@@ -38,10 +60,16 @@ class Todo(Resource):
         if todo_validation(id):
             query = models.Todo.delete().where(models.Todo.id == id)
             query.execute()
-            return '', 204, {'Location': url_for('resources.todo.todos')}
+            return ('', 204)
         return (
             'The todo id ({}) you tried '.format(id) +
             'to delete does not exist.', 404)
+
+    # Don't think I will need this but temporarly commenting this out.
+    # def get(self, id):
+    #     '''This gets the data from a specific Todo object.'''
+    #     todo = models.Todo.get(models.Todo.id == id)
+    #     return jsonify({'id': id, 'name': todo.name})
 
 
 # This section registers the Todo API with a Blueprint
@@ -49,7 +77,7 @@ todo_api = Blueprint('resources.todo', __name__)
 api = Api(todo_api)
 api.add_resource(
     TodoList,
-    '/todos/',
+    '/todos',
     endpoint='todos'
 )
 api.add_resource(
