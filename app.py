@@ -1,7 +1,7 @@
 from flask import Flask, g, jsonify, render_template
 
 
-import resources.config
+import config
 from resources.todo import todo_api
 
 app = Flask(__name__)
@@ -14,5 +14,5 @@ def my_todos():
 
 
 if __name__ == '__main__':
-    app.run(debug=resources.config.DEBUG,
-            host=resources.config.HOST, port=resources.config.PORT)
+    app.run(debug=config.DEBUG,
+            host=config.HOST, port=config.PORT)

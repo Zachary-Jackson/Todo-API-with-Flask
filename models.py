@@ -8,7 +8,16 @@ from peewee import *
 import config
 
 
+class Todo(Model):
+    '''This is the Model class for a ToDo item.'''
+    name = CharField()
+    created_at = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        database = config.DATABASE
+
+
 def initialize():
-    DATABASE.connect()
-    DATABASE.create_tables([User, Todo], safe=True)
-    DATABASE.close()
+    config.DATABASE.connect()
+    config.DATABASE.create_tables([User, Todo], safe=True)
+    config.DATABASE.close()
