@@ -55,6 +55,30 @@ class TodoList(Resource):
 
 class Todo(Resource):
     '''This class defines what happens to HTTP requests of a certain item.'''
+    def __init__(self):
+        '''Initializes reqparse to be used later on.'''
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'name',
+            required=True,
+            help='You must provide an updated name argument.',
+            location=['form', 'json']
+        )
+        super().__init__()
+
+    @marshal_with(TODO_FIELDS)
+    def put(self, id):
+        if todo_validation(id):
+            args = self.reqparse.parse_args()
+            query = models.Todo.update(**args).where(models.Todo.id == id)
+            query.execute()
+            todo = models.Todo.get(models.Todo.id == id)
+            return (todo, 200,
+                    {'Location': url_for('resources.todo.todo', id=id)})
+        return (
+            'The todo id ({}) you tried '.format(id) +
+            'to update does not exist.', 404)
+
     def delete(self, id):
         '''This tries to delete a Todo object in the database.'''
         if todo_validation(id):
