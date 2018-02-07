@@ -2,8 +2,8 @@ from operator import attrgetter
 
 from flask import Blueprint, jsonify
 
-from flask.ext.restful import (Api, fields, inputs, marshal,
-                               marshal_with, reqparse, Resource, url_for)
+from flask_restful import (Api, fields, inputs, marshal,
+                           marshal_with, reqparse, Resource, url_for)
 
 import models
 
@@ -49,7 +49,7 @@ class TodoList(Resource):
     def post(self):
         args = self.reqparse.parse_args()
         todo = models.Todo.create(**args)
-        return ('', 201,
+        return (todo, 201,
                 {'Location': url_for('resources.todo.todo', id=todo.id)})
 
 
@@ -64,12 +64,6 @@ class Todo(Resource):
         return (
             'The todo id ({}) you tried '.format(id) +
             'to delete does not exist.', 404)
-
-    # Don't think I will need this but temporarly commenting this out.
-    # def get(self, id):
-    #     '''This gets the data from a specific Todo object.'''
-    #     todo = models.Todo.get(models.Todo.id == id)
-    #     return jsonify({'id': id, 'name': todo.name})
 
 
 # This section registers the Todo API with a Blueprint
