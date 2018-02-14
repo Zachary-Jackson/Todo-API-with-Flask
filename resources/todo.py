@@ -1,6 +1,6 @@
 from operator import attrgetter
 
-from flask import Blueprint, jsonify
+from flask import Blueprint
 
 from flask_restful import (Api, fields, inputs, marshal,
                            marshal_with, reqparse, Resource, url_for)
