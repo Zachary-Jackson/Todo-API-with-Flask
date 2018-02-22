@@ -18,7 +18,7 @@ TEST_DB.create_tables([User, Todo], safe=True)
 
 class TodoModelTestCase(unittest.TestCase):
     '''This tests the Todo model.'''
-    def test_todo_createion(self):
+    def test_todo_creation(self):
         '''This tests the creation of a Todo object.'''
         with test_database(TEST_DB, (User, Todo)):
             Todo.create(

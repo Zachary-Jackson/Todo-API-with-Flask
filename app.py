@@ -1,11 +1,13 @@
-from flask import Flask, g, jsonify, render_template
+from flask import Flask, render_template
 
 
 import config
 from resources.todo import todo_api
+from resources.users import users_api
 
 app = Flask(__name__)
 app.register_blueprint(todo_api, url_prefix='/api/v1')
+app.register_blueprint(users_api, url_prefix='/api/v1')
 
 
 @app.route('/')

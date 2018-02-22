@@ -2,9 +2,10 @@ from operator import attrgetter
 
 from flask import Blueprint
 
-from flask_restful import (Api, fields, inputs, marshal,
+from flask_restful import (Api, fields, marshal,
                            marshal_with, reqparse, Resource, url_for)
 
+from auth import auth
 import models
 
 TODO_FIELDS = {
@@ -46,6 +47,7 @@ class TodoList(Resource):
         return todos
 
     @marshal_with(TODO_FIELDS)
+    @auth.login_required
     def post(self):
         args = self.reqparse.parse_args()
         todo = models.Todo.create(**args)
@@ -67,6 +69,7 @@ class Todo(Resource):
         super().__init__()
 
     @marshal_with(TODO_FIELDS)
+    @auth.login_required
     def put(self, id):
         if todo_validation(id):
             args = self.reqparse.parse_args()
@@ -79,6 +82,7 @@ class Todo(Resource):
             'The todo id ({}) you tried '.format(id) +
             'to update does not exist.', 404)
 
+    @auth.login_required
     def delete(self, id):
         '''This tries to delete a Todo object in the database.'''
         if todo_validation(id):
