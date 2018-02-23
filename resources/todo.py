@@ -15,7 +15,7 @@ TODO_FIELDS = {
 
 
 def todo_validation(todo_id):
-    '''This tries to find a todo instand with the given id. If not
+    '''This tries to find a todo instance with the given id. If not
     this function returns False'''
     try:
         models.Todo.get(models.Todo.id == todo_id)
@@ -47,7 +47,6 @@ class TodoList(Resource):
         return todos
 
     @marshal_with(TODO_FIELDS)
-    @auth.login_required
     def post(self):
         args = self.reqparse.parse_args()
         todo = models.Todo.create(**args)

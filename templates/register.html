@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% from 'macros.html' import render_field %}
+
+
+{% block header %}
+  <nav class="header"><a href="{{ url_for('my_todos') }}">Homepage</a></nav>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="new-entry">
+        <h2>New User</h2>
+          <form method='POST' action=''>
+            {{ form.hidden_tag() }}
+            {{ render_field(form.username) }}
+            {{ render_field(form.password) }}
+            {{ render_field(form.password2) }}
+            <div class="u-full-width">
+              <input type="submit" class="button-primary" value="Register">
+            </div>
+          </form>
+    </div>
+</div>
+
+{% endblock %}

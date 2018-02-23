@@ -27,7 +27,7 @@ class User(Model):
         database = DATABASE
 
     @classmethod
-    def create_user(cls, username, password, **kwargs):
+    def user_create(cls, username, password, **kwargs):
         '''This tries to create a User unless the user is already created.'''
         try:
             cls.select().where(cls.username**username).get()
