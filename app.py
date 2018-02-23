@@ -1,4 +1,6 @@
-from flask import Flask, flash, redirect, render_template, url_for
+from flask import Flask, flash, g, redirect, render_template, url_for
+from flask_login import (LoginManager, current_user, login_user,
+                         logout_user, login_required)
 
 import config
 import forms
@@ -10,6 +12,24 @@ app = Flask(__name__)
 app.register_blueprint(todo_api, url_prefix='/api/v1')
 app.register_blueprint(users_api, url_prefix='/api/v1')
 app.secret_key = config.SECRET_KEY
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'register'
+
+
+@login_manager.user_loader
+def load_user(userid):
+    """This finds a user or returns None."""
+    try:
+        return models.User.get(id=userid)
+    except models.DoesNotExist:
+        return None
+
+
+@app.before_request
+def before_request():
+    g.user = current_user
 
 
 @app.route('/')
@@ -28,6 +48,8 @@ def register():
             username=form.username.data,
             password=form.password.data
         )
+        user = models.User.get(models.User.username == form.username.data)
+        login_user(user)
         return redirect(url_for('my_todos'))
     return render_template('register.html', form=form)
 

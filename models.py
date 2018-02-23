@@ -1,6 +1,7 @@
 import datetime
 
 from argon2 import PasswordHasher
+from flask_login import UserMixin
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
                           BadSignature, SignatureExpired)
 from peewee import *
@@ -19,7 +20,7 @@ class Todo(Model):
         database = DATABASE
 
 
-class User(Model):
+class User(Model, UserMixin):
     username = CharField(unique=True)
     password = CharField()
 

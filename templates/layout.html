@@ -13,6 +13,9 @@
 </head>
 
 {% block header %}
+{% if current_user.is_authenticated %}
+<p> (Testing) You are logged in  {{current_user.username}}</p>
+{% endif %}
   <nav class="header"><a href="{{ url_for('register') }}">Create a User login.</a></nav>
 {% endblock %}
 

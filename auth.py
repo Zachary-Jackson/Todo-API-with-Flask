@@ -8,6 +8,14 @@ basic_auth = HTTPBasicAuth()
 auth = basic_auth
 
 
+@basic_auth.get_password
+def get_password(username):
+    user = models.User.get(username=username)
+    if user is not None:
+        return user.password
+    return None
+
+
 @basic_auth.verify_password
 def verify_password(username, password):
     '''Tries to authenticate a user and if so g.users them'''
