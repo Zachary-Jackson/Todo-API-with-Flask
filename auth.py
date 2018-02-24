@@ -10,6 +10,7 @@ auth = basic_auth
 
 @basic_auth.get_password
 def get_password(username):
+    '''gets the provide user's password'''
     user = models.User.get(username=username)
     if user is not None:
         return user.password

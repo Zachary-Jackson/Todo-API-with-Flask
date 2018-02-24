@@ -33,9 +33,3 @@ class RegisterForm(FlaskForm):
         'Confirm Password',
         validators=[DataRequired()]
     )
-
-
-class LoginForm(FlaskForm):
-    """This is the form that user's login with."""
-    username = StringField('Username', validators=[DataRequired()])
-    password = StringField('Password', validators=[DataRequired()])

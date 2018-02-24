@@ -1,4 +1,5 @@
 {% macro render_field(field) %}
+
 {% if field.errors %}
 <div class="u-full-width field-errors">
   <ul>
@@ -8,6 +9,8 @@
   </ul>
 </div>
 {% endif %}
+
 {{ field.label }}
 {{ field(class="u-full-width") }}
+
 {% endmacro %}

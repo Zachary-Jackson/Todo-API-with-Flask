@@ -47,6 +47,7 @@ class TodoList(Resource):
         return todos
 
     @marshal_with(TODO_FIELDS)
+    @auth.login_required
     def post(self):
         args = self.reqparse.parse_args()
         todo = models.Todo.create(**args)

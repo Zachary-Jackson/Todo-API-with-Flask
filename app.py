@@ -1,6 +1,5 @@
-from flask import Flask, flash, g, redirect, render_template, url_for
-from flask_login import (LoginManager, current_user, login_user,
-                         logout_user, login_required)
+from flask import Flask, g, redirect, render_template, url_for
+from flask_login import LoginManager, current_user, login_user
 
 import config
 import forms
@@ -43,7 +42,6 @@ def register():
     '''This is the new user registration page.'''
     form = forms.RegisterForm()
     if form.validate_on_submit():
-        flash("You are registered!", "success")
         models.User.user_create(
             username=form.username.data,
             password=form.password.data

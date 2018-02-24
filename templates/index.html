@@ -1,7 +1,13 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<h1>My TODOs!</h1>
+
+{% if not current_user.is_authenticated %}
+  <h2>This  TODO application will not work correctly if you don't sign in.</h2>
+{% endif %}
+{% if current_user.is_authenticated %}
+  <h1>{{current_user.username | capitalize}}'s TODOs!</h1>
+{% endif %}
 
 <div class="list" ng-controller="mainCtrl">
   <div class="add">
@@ -10,4 +16,5 @@
     </div>
   <todo></todo>
  </div>
+ 
 {% endblock %}

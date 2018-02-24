@@ -33,6 +33,31 @@ class TodoModelTestCase(unittest.TestCase):
             self.assertEqual(Todo.select().count(), 1)
 
 
+class UserModelTestCase(unittest.TestCase):
+    '''This tests the User model.'''
+    def test_todo_creation(self):
+        '''This tests the creation of a Todo object.'''
+        with test_database(TEST_DB, (User, Todo)):
+            User.create(
+                username='username',
+                password='password'
+            )
+            self.assertEqual(User.select().count(), 1)
+
+    def test_duplicate_todo_creation(self):
+        '''This tests the creation of a duplicate Todo object.'''
+        with test_database(TEST_DB, (User, Todo)):
+            User.create(
+                username='username',
+                password='password'
+            )
+            with self.assertRaises(Exception):
+                User.create(
+                    username='username',
+                    password='password'
+                )
+
+
 class ViewTestCase(unittest.TestCase):
     '''This sets up the Flask app for testing.'''
     def setUp(self):
@@ -53,7 +78,6 @@ class HomepageViewTestCase(ViewTestCase):
         '''This checks to see if the title and new task button is found'''
         with test_database(TEST_DB, (User, Todo)):
             result = self.app.get('/')
-            self.assertIn("My TODOs!", result.data.decode())
             self.assertIn("Add a New Task", result.data.decode())
 
 
@@ -96,8 +120,14 @@ class APITestCase(ViewTestCase):
     def test_todo_list_post(self):
         '''This checks to see if the TodoList POST api is working.'''
         with test_database(TEST_DB, (User, Todo)):
+            User.user_create(
+                username='username',
+                password='password'
+            )
             data = {'name': 'Going to the grocery store'}
-            response = self.app.post(TODO_LIST_URL, data=data)
+            response = self.app.post(
+                TODO_LIST_URL, data=data, headers=BASIC_AUTH_HEADERS
+            )
 
             # This converts the response from JSON to a python dict
             response_decoded = response.data.decode("utf-8")
@@ -113,6 +143,24 @@ class APITestCase(ViewTestCase):
                 {'id': 1, 'name': 'Going to the grocery store'})
             todo_object = Todo.get(Todo.id == 1)
             self.assertEqual(todo_object.name, 'Going to the grocery store')
+
+    def test_todo_list_post_unauthorized(self):
+        '''This checks to see if the TodoList POST api is working.'''
+        with test_database(TEST_DB, (User, Todo)):
+            data = {'name': 'Going to the grocery store'}
+            response = self.app.post(TODO_LIST_URL, data=data)
+
+            # This converts the response from JSON to a python dict
+            response_decoded = response.data.decode("utf-8")
+            response_decoded = json.loads(response_decoded)
+
+            self.assertTrue(type(response.data) is bytes)
+            self.assertEqual(response.status_code, 200)
+
+            # id should be 0 because it we should be getting back None
+            self.assertEqual(
+                response_decoded,
+                {'id': 0, 'name': None})
 
     def test_todo_put(self):
         '''This checks to see if the Todo PUT api is working.'''
