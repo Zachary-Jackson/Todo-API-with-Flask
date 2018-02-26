@@ -1,5 +1,8 @@
-from flask import Flask, g, redirect, render_template, url_for
-from flask_login import LoginManager, current_user, login_user
+import argon2
+from flask import flash, Flask, g, redirect, render_template, url_for
+from flask_login import (
+    current_user, LoginManager, login_required, login_user, logout_user
+)
 
 import config
 import forms
@@ -50,6 +53,36 @@ def register():
         login_user(user)
         return redirect(url_for('my_todos'))
     return render_template('register.html', form=form)
+
+
+@app.route('/login', methods=('GET', 'POST'))
+def login():
+    '''Allows the user to login.'''
+    form = forms.LoginForm()
+    if form.validate_on_submit():
+        try:
+            user = models.User.get(models.User.username == form.username.data)
+        except models.DoesNotExist:
+            flash("The username or password you intered is incorrect")
+        else:
+            # This try: block checks to see if the user's password
+            # is correct.
+            try:
+                user.verify_password(form.password.data)
+            except argon2.exceptions.VerifyMismatchError:
+                flash("The username or password you intered is incorrect")
+            else:
+                login_user(user)
+                return redirect(url_for('my_todos'))
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout', methods=('GET', 'POST'))
+@login_required
+def logout():
+    '''Allows the user to logout.'''
+    logout_user()
+    return redirect(url_for('my_todos'))
 
 
 if __name__ == '__main__':

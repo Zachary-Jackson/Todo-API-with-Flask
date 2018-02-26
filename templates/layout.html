@@ -14,10 +14,13 @@
 
 {% block header %}
 {% if not current_user.is_authenticated %}
-  <nav class="header"><a href="{{ url_for('register') }}">Create a User login.</a></nav>
+  <nav class="header">
+    <a href="{{ url_for('register') }}" class="left-spacer">User Registration</a>
+    <a href="{{ url_for('login') }}" class="right-spacer">User Login</a>
+  </nav>
 {% endif %}
 {% if current_user.is_authenticated %}
-  <nav class="header"></nav>
+  <nav class="header"><a href="{{ url_for('logout') }}">Log out</a></nav>
 {% endif %}
 {% endblock %}
 

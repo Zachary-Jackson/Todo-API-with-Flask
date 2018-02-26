@@ -46,8 +46,8 @@ class TodoList(Resource):
         todos = [marshal(todo, TODO_FIELDS) for todo in sorted_todos]
         return todos
 
-    @marshal_with(TODO_FIELDS)
     @auth.login_required
+    @marshal_with(TODO_FIELDS)
     def post(self):
         args = self.reqparse.parse_args()
         todo = models.Todo.create(**args)
@@ -68,8 +68,8 @@ class Todo(Resource):
         )
         super().__init__()
 
-    @marshal_with(TODO_FIELDS)
     @auth.login_required
+    @marshal_with(TODO_FIELDS)
     def put(self, id):
         if todo_validation(id):
             args = self.reqparse.parse_args()

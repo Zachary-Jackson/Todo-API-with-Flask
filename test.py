@@ -149,18 +149,7 @@ class APITestCase(ViewTestCase):
         with test_database(TEST_DB, (User, Todo)):
             data = {'name': 'Going to the grocery store'}
             response = self.app.post(TODO_LIST_URL, data=data)
-
-            # This converts the response from JSON to a python dict
-            response_decoded = response.data.decode("utf-8")
-            response_decoded = json.loads(response_decoded)
-
-            self.assertTrue(type(response.data) is bytes)
-            self.assertEqual(response.status_code, 200)
-
-            # id should be 0 because it we should be getting back None
-            self.assertEqual(
-                response_decoded,
-                {'id': 0, 'name': None})
+            self.assertEqual(response.status_code, 401)
 
     def test_todo_put(self):
         '''This checks to see if the Todo PUT api is working.'''
@@ -199,17 +188,7 @@ class APITestCase(ViewTestCase):
             # This converts a python dictionary to JSON to send to the API
             data = {"id": 1, "name": "Water the seeds in the garden."}
             response = self.app.put(TODO_ITEM_URL.format(1), data=data)
-
-            # This converts the response from JSON to a python dict
-            response_decoded = response.data.decode("utf-8")
-            response_decoded = json.loads(response_decoded)
-
-            self.assertTrue(type(response.data) is bytes)
-            self.assertEqual(response.status_code, 200)
-            # id should be 0 because it we should be getting back None
-            self.assertEqual(
-                response_decoded,
-                {"id": 0, "name": None})
+            self.assertEqual(response.status_code, 401)
 
     def test_todo_delete(self):
         '''This checks to see if the Todo DELETE API is working.'''

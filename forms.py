@@ -19,7 +19,7 @@ class RegisterForm(FlaskForm):
         'Username',
         validators=[
             DataRequired(),
-            Length(min=4),
+            Length(min=3),
             user_exists
         ])
     password = PasswordField(
@@ -33,3 +33,8 @@ class RegisterForm(FlaskForm):
         'Confirm Password',
         validators=[DataRequired()]
     )
+
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])

@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% from 'macros.html' import render_field %}
+
+{% block header %}
+  <nav class="header"><a href="{{ url_for('my_todos') }}">Homepage</a></nav>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="new-entry">
+        <h2>Login</h2>
+
+        {% with messages=get_flashed_messages() %}
+          {% if messages %}
+            <h2>{{ messages }}</h2>
+          {% endif %}
+        {% endwith %}
+
+          <form method='POST' action=''>
+            {{ form.hidden_tag() }}
+            {{ render_field(form.username) }}
+            {{ render_field(form.password) }}
+            <div class="u-full-width">
+              <input type="submit" class="button-primary" value="Log in">
+            </div>
+          </form>
+    </div>
+</div>
+
+{% endblock %}

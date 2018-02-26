@@ -85,3 +85,13 @@ a { color: inherit;}
   background-color: #5a6772;
   border-color: #5a6772;
 }
+
+.left-spacer {
+  float: left;
+  margin-left: 15%;
+}
+
+.right-spacer {
+  float: right;
+  margin-right: 15%
+}
