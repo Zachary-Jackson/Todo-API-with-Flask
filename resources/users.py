@@ -37,8 +37,21 @@ class UserList(Resource):
         '''This checks to see if the can log in.'''
         args = self.reqparse.parse_args()
         if args.get('password') == args.get('password_verification'):
-            user = models.User.user_create(**args)
-            return marshal(user, user_fields), 201
+
+            # This try except block check to see if the user has already
+            # been created. If so alert the API user.
+            try:
+                user = models.User.user_create(**args)
+            except Exception:
+                return make_response(
+                    json.dumps(
+                        {'error':
+                         'A user with that username already exsists'}, 403
+                    )
+                )
+            else:
+                return marshal(user, user_fields), 201
+
         else:
             return make_response(
                 json.dumps(

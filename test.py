@@ -66,6 +66,18 @@ class ViewTestCase(unittest.TestCase):
         self.app = app.test_client()
 
 
+class LoginpageViewTestCase(ViewTestCase):
+    '''This tests that the login page looks correct.'''
+    def test_homepage_HTTP_status(self):
+        '''This ensures that the application's homepage works.'''
+        with test_database(TEST_DB, (User, Todo)):
+            result = self.app.get('/login')
+            self.assertEqual(result.status_code, 200)
+            self.assertIn("Username", result.data.decode())
+            self.assertIn("Password", result.data.decode())
+            self.assertNotIn("Confirm Password", result.data.decode())
+
+
 class HomepageViewTestCase(ViewTestCase):
     '''This tests that the homepage looks correct.'''
     def test_homepage_HTTP_status(self):
@@ -94,6 +106,62 @@ class RegisterViewTestCase(ViewTestCase):
 
 class APITestCase(ViewTestCase):
     '''This ensures that the API is working correctly.'''
+
+    def test_create_user(self):
+        '''This checks to see if create user via API works'''
+        with test_database(TEST_DB, (User, Todo)):
+            data = {
+                'username': 'test',
+                'password': 'password',
+                'password_verification': 'password'
+            }
+            user_url = 'http://localhost:8000/api/v1/users'
+
+            # This has created our first user
+            response = self.app.post(
+                user_url, data=data, headers=BASIC_AUTH_HEADERS
+            )
+
+            # This converts the response from JSON to a python dict
+            response_decoded = response.data.decode("utf-8")
+            response_decoded = json.loads(response_decoded)
+
+            self.assertTrue(type(response.data) is bytes)
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(
+                response_decoded,
+                {"username": "test"})
+
+            # This tests the creation of a second user with the same name
+            response = self.app.post(
+                user_url, data=data, headers=BASIC_AUTH_HEADERS
+            )
+
+            response_decoded = response.data.decode("utf-8")
+            response_decoded = json.loads(response_decoded)
+
+            self.assertTrue(type(response.data) is bytes)
+            self.assertEqual(
+                response_decoded,
+                {"error": "A user with that username already exsists"})
+
+            # This checks the creation of a user with an invalid password
+            data = {
+                'username': 'test',
+                'password': 'password',
+                'password_verification': 'incorrect password'
+            }
+            response = self.app.post(
+                user_url, data=data, headers=BASIC_AUTH_HEADERS
+            )
+
+            response_decoded = response.data.decode("utf-8")
+            response_decoded = json.loads(response_decoded)
+
+            self.assertTrue(type(response.data) is bytes)
+            self.assertEqual(
+                response_decoded,
+                {"error": "password and password_verification do not match"})
 
     def test_todo_list_get(self):
         '''This checks to see if the TodoList GET api is working.'''
@@ -124,6 +192,7 @@ class APITestCase(ViewTestCase):
                 username='username',
                 password='password'
             )
+
             data = {'name': 'Going to the grocery store'}
             response = self.app.post(
                 TODO_LIST_URL, data=data, headers=BASIC_AUTH_HEADERS
@@ -158,13 +227,48 @@ class APITestCase(ViewTestCase):
                 username='username',
                 password='password'
             )
+
             Todo.create(
                 name='Plant some seeds in the garden.'
             )
+
             # This converts a python dictionary to JSON to send to the API
             data = {"id": 1, "name": "Water the seeds in the garden."}
             response = self.app.put(TODO_ITEM_URL.format(1), data=data,
                                     headers=BASIC_AUTH_HEADERS)
+
+            # This converts the response from JSON to a python dict
+            response_decoded = response.data.decode("utf-8")
+            response_decoded = json.loads(response_decoded)
+
+            self.assertTrue(type(response.data) is bytes)
+            self.assertEqual(response.status_code, 200)
+            # id should be 1 because it is the first item in the database.
+            # Name should be the new value created above.
+            # The response should not be a list, but a dict.
+            self.assertEqual(
+                response_decoded,
+                {"id": 1, "name": "Water the seeds in the garden."})
+
+    def test_todo_put_token(self):
+        '''This checks to see if the Todo PUT api is working.'''
+        with test_database(TEST_DB, (User, Todo)):
+            user = User.user_create(
+                username='username',
+                password='password'
+            )
+
+            Todo.create(
+                name='Plant some seeds in the garden.'
+            )
+
+            token = user.generate_auth_token().decode('ascii')
+            headers = {'Authorization': 'Token {}'.format(token)}
+
+            # This converts a python dictionary to JSON to send to the API
+            data = {"id": 1, "name": "Water the seeds in the garden."}
+            response = self.app.put(TODO_ITEM_URL.format(1), data=data,
+                                    headers=headers)
 
             # This converts the response from JSON to a python dict
             response_decoded = response.data.decode("utf-8")
@@ -197,11 +301,34 @@ class APITestCase(ViewTestCase):
                 username='username',
                 password='password'
             )
+
             Todo.create(
                 name='Plant some seeds in the garden.'
             )
+
             response = self.app.delete(TODO_ITEM_URL.format(1),
                                        headers=BASIC_AUTH_HEADERS)
+            self.assertEqual(response.status_code, 204)
+            # This tests to see if the Todo object is in the database.
+            self.assertEqual(Todo.select().count(), 0)
+
+    def test_todo_delete_token(self):
+        '''This checks to see if the Todo DELETE API is working.'''
+        with test_database(TEST_DB, (User, Todo)):
+            user = User.user_create(
+                username='username',
+                password='password'
+            )
+
+            Todo.create(
+                name='Plant some seeds in the garden.'
+            )
+
+            token = user.generate_auth_token().decode('ascii')
+            headers = {'Authorization': 'Token {}'.format(token)}
+
+            response = self.app.delete(TODO_ITEM_URL.format(1),
+                                       headers=headers)
             self.assertEqual(response.status_code, 204)
             # This tests to see if the Todo object is in the database.
             self.assertEqual(Todo.select().count(), 0)

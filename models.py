@@ -6,6 +6,8 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
                           BadSignature, SignatureExpired)
 from peewee import *
 
+import config
+
 HASHER = PasswordHasher()
 
 DATABASE = SqliteDatabase('todos.sqlite')
@@ -41,6 +43,18 @@ class User(Model, UserMixin):
             raise Exception("A user with that username already exsists.")
 
     @staticmethod
+    def verify_auth_token(token):
+        '''This checks to see if the given token is correct.'''
+        serializer = Serializer(config.SECRET_KEY)
+        try:
+            data = serializer.loads(token)
+        except (SignatureExpired, BadSignature):
+            return None
+        else:
+            user = User.get(User.id == data['id'])
+            return user
+
+    @staticmethod
     def create_password(password):
         '''This hashes a given password.'''
         return HASHER.hash(password)
@@ -48,6 +62,11 @@ class User(Model, UserMixin):
     def verify_password(self, password):
         '''This checks that a given password and the user's password match.'''
         return HASHER.verify(self.password, password)
+
+    def generate_auth_token(self, expires=36000):
+        '''This genereates an authentication token'''
+        serializer = Serializer(config.SECRET_KEY, expires_in=expires)
+        return serializer.dumps({'id': self.id})
 
 
 def initialize():

@@ -1,9 +1,10 @@
 import argon2
-from flask import flash, Flask, g, redirect, render_template, url_for
+from flask import flash, Flask, g, jsonify, redirect, render_template, url_for
 from flask_login import (
     current_user, LoginManager, login_required, login_user, logout_user
 )
 
+from auth import auth
 import config
 import forms
 import models
@@ -38,6 +39,14 @@ def before_request():
 def my_todos():
     '''This takes the user to the homepage.'''
     return render_template('index.html')
+
+
+@app.route('/api/v1/users/token', methods=['GET'])
+@auth.login_required
+def get_auth_token():
+    '''Gives a user their token'''
+    token = g.user.generate_auth_token()
+    return jsonify({'token': token.decode('ascii')})
 
 
 @app.route('/register', methods=('GET', 'POST'))
