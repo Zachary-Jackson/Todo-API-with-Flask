@@ -68,14 +68,46 @@ class ViewTestCase(unittest.TestCase):
 
 class LoginpageViewTestCase(ViewTestCase):
     '''This tests that the login page looks correct.'''
-    def test_homepage_HTTP_status(self):
-        '''This ensures that the application's homepage works.'''
+    def test_login_HTTP_status(self):
+        '''This ensures that the application's loginpage works.'''
         with test_database(TEST_DB, (User, Todo)):
             result = self.app.get('/login')
             self.assertEqual(result.status_code, 200)
             self.assertIn("Username", result.data.decode())
             self.assertIn("Password", result.data.decode())
             self.assertNotIn("Confirm Password", result.data.decode())
+
+    def test_login_form(self):
+        '''This tests to see if the LoginForm works.'''
+        with test_database(TEST_DB, (User, Todo)):
+            User.user_create(
+                username='username',
+                password='password'
+            )
+
+            self.app.get('/login')
+            form = {'username': 'username',
+                    'password': 'password'}
+            response = self.app.post('/login', data=form)
+            self.assertEqual(response.status_code, 302)
+
+    def test_bad_login_form(self):
+        '''This tests to see if the LoginForm works.'''
+        with test_database(TEST_DB, (User, Todo)):
+            User.user_create(
+                username='username',
+                password='password'
+            )
+
+            self.app.get('/login')
+            form = {'username': 'username',
+                    'password': 'incorrect'}
+            response = self.app.post('/login', data=form)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(
+                "The username or password you intered is incorrect",
+                response.data.decode()
+            )
 
 
 class HomepageViewTestCase(ViewTestCase):
@@ -94,14 +126,41 @@ class HomepageViewTestCase(ViewTestCase):
 
 
 class RegisterViewTestCase(ViewTestCase):
-    '''This tests that the homepage looks correct.'''
-    def test_homepage_HTTP_status(self):
-        '''This ensures that the application's homepage works.'''
+    '''This tests that the register page looks correct.'''
+    def test_register_HTTP_status(self):
+        '''This ensures that the application's register page works.'''
         with test_database(TEST_DB, (User, Todo)):
             result = self.app.get('/register')
             self.assertEqual(result.status_code, 200)
             self.assertIn("Username", result.data.decode())
             self.assertIn("Confirm Password", result.data.decode())
+
+    def test_register_form(self):
+        '''This tests to see if the RegisterForm works.'''
+        with test_database(TEST_DB, (User, Todo)):
+            self.app.get('/register')
+            form = {'username': 'username',
+                    'password': 'password',
+                    'password2': 'password'}
+            response = self.app.post('/register', data=form)
+            self.assertEqual(response.status_code, 302)
+
+            # This checks to see if we actually created a new user
+            self.assertTrue(User.get(User.username == 'username'))
+
+    def test_bad_register_form(self):
+        '''This tests to see if the RegisterForm works.'''
+        with test_database(TEST_DB, (User, Todo)):
+            self.app.get('/register')
+            form = {'username': 'username',
+                    'password': 'password',
+                    'password2': 'incorrect'}
+            response = self.app.post('/register', data=form)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(
+                "Passwords must match",
+                response.data.decode()
+            )
 
 
 class APITestCase(ViewTestCase):

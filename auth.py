@@ -34,7 +34,12 @@ def verify_password(username, password):
 
 @token_auth.verify_token
 def verify_token(token):
-    '''sends the token to the User model for verification'''
+    '''Sends the token to the User model for verification'''
+    # Not having these two lines of code bellow gave me tons of trouble
+    # to figure out what was going on.
+    if not token and g.user.is_authenticated:
+        token = g.user.generate_auth_token()
+
     user = models.User.verify_auth_token(token)
     if user is not None:
         g.user = user
