@@ -2,8 +2,9 @@ from operator import attrgetter
 
 from flask import Blueprint
 
-from flask_restful import (Api, fields, marshal,
-                           marshal_with, reqparse, Resource, url_for)
+from flask_restful import (
+    Api, fields, marshal, marshal_with, reqparse, Resource, url_for
+)
 
 from auth import auth
 import models
@@ -15,8 +16,8 @@ TODO_FIELDS = {
 
 
 def todo_validation(todo_id):
-    '''This tries to find a todo instance with the given id. If not
-    this function returns False'''
+    """This tries to find a todo instance with the given id. If not
+    this function returns False"""
     try:
         models.Todo.get(models.Todo.id == todo_id)
     except models.Todo.DoesNotExist:
@@ -26,10 +27,10 @@ def todo_validation(todo_id):
 
 
 class TodoList(Resource):
-    '''This class defines what happens when HTTP requests are used without
-    an item id number.'''
+    """This class defines what happens when HTTP requests are used without
+    an item id number."""
     def __init__(self):
-        '''Initializes reqparse to be used later on.'''
+        """Initializes reqparse to be used later on."""
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
             'name',
@@ -40,9 +41,12 @@ class TodoList(Resource):
         super().__init__()
 
     def get(self):
-        '''Returns all Todo objects in the database.'''
+        """Returns all Todo objects in the database."""
         sorted_todos = sorted(
-            models.Todo.select(), key=attrgetter('created_at'), reverse=True)
+            models.Todo.select(),
+            key=attrgetter('created_at'),
+            reverse=True
+        )
         todos = [marshal(todo, TODO_FIELDS) for todo in sorted_todos]
         return todos
 
@@ -51,14 +55,17 @@ class TodoList(Resource):
     def post(self):
         args = self.reqparse.parse_args()
         todo = models.Todo.create(**args)
-        return (todo, 201,
-                {'Location': url_for('resources.todo.todo', id=todo.id)})
+        return (
+            todo,
+            201,
+            {'Location': url_for('resources.todo.todo', id=todo.id)}
+        )
 
 
 class Todo(Resource):
-    '''This class defines what happens to HTTP requests of a certain item.'''
+    """This class defines what happens to HTTP requests of a certain item."""
     def __init__(self):
-        '''Initializes reqparse to be used later on.'''
+        """Initializes reqparse to be used later on."""
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
             'name',
@@ -76,15 +83,19 @@ class Todo(Resource):
             query = models.Todo.update(**args).where(models.Todo.id == id)
             query.execute()
             todo = models.Todo.get(models.Todo.id == id)
-            return (todo, 200,
-                    {'Location': url_for('resources.todo.todo', id=id)})
+            return (
+                todo,
+                200,
+                {'Location': url_for('resources.todo.todo', id=id)}
+            )
+
         return (
             'The todo id ({}) you tried '.format(id) +
             'to update does not exist.', 404)
 
     @auth.login_required
     def delete(self, id):
-        '''This tries to delete a Todo object in the database.'''
+        """This tries to delete a Todo object in the database."""
         if todo_validation(id):
             query = models.Todo.delete().where(models.Todo.id == id)
             query.execute()

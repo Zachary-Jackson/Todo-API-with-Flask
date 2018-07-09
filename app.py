@@ -37,59 +37,66 @@ def before_request():
 
 @app.route('/')
 def my_todos():
-    '''This takes the user to the homepage.'''
+    """This takes the user to the homepage."""
     return render_template('index.html')
 
 
 @app.route('/api/v1/users/token', methods=['GET'])
 @auth.login_required
 def get_auth_token():
-    '''Gives a user their token'''
+    """Gives a user their token"""
     token = g.user.generate_auth_token()
     return jsonify({'token': token.decode('ascii')})
 
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
-    '''This is the new user registration page.'''
+    """This is the new user registration page."""
     form = forms.RegisterForm()
     if form.validate_on_submit():
+
         models.User.user_create(
             username=form.username.data,
             password=form.password.data
         )
+
         user = models.User.get(models.User.username == form.username.data)
         login_user(user)
         return redirect(url_for('my_todos'))
+
     return render_template('register.html', form=form)
 
 
 @app.route('/login', methods=('GET', 'POST'))
 def login():
-    '''Allows the user to login.'''
+    """Allows the user to login."""
     form = forms.LoginForm()
+
     if form.validate_on_submit():
         try:
             user = models.User.get(models.User.username == form.username.data)
+
         except models.DoesNotExist:
-            flash("The username or password you intered is incorrect")
+            flash("The username or password you interred is incorrect")
+
         else:
             # This try: block checks to see if the user's password
             # is correct.
             try:
                 user.verify_password(form.password.data)
             except argon2.exceptions.VerifyMismatchError:
-                flash("The username or password you intered is incorrect")
+                flash("The username or password you interred is incorrect")
             else:
                 login_user(user)
                 return redirect(url_for('my_todos'))
+
     return render_template('login.html', form=form)
 
 
 @app.route('/logout', methods=('GET', 'POST'))
 @login_required
 def logout():
-    '''Allows the user to logout.'''
+    """Allows the user to logout."""
     logout_user()
     return redirect(url_for('my_todos'))
 

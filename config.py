@@ -1,4 +1,4 @@
-from peewee import *
+"""This is all of the configuration files for this project"""
 
 DEBUG = True
 HOST = '0.0.0.0'

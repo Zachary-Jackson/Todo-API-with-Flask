@@ -23,9 +23,9 @@ TEST_DB.create_tables([User, Todo], safe=True)
 
 
 class TodoModelTestCase(unittest.TestCase):
-    '''This tests the Todo model.'''
+    """This tests the Todo model."""
     def test_todo_creation(self):
-        '''This tests the creation of a Todo object.'''
+        """This tests the creation of a Todo object."""
         with test_database(TEST_DB, (User, Todo)):
             Todo.create(
                 name='Plant some seeds in the garden.'
@@ -34,9 +34,9 @@ class TodoModelTestCase(unittest.TestCase):
 
 
 class UserModelTestCase(unittest.TestCase):
-    '''This tests the User model.'''
+    """This tests the User model."""
     def test_todo_creation(self):
-        '''This tests the creation of a Todo object.'''
+        """This tests the creation of a Todo object."""
         with test_database(TEST_DB, (User, Todo)):
             User.create(
                 username='username',
@@ -45,7 +45,7 @@ class UserModelTestCase(unittest.TestCase):
             self.assertEqual(User.select().count(), 1)
 
     def test_duplicate_todo_creation(self):
-        '''This tests the creation of a duplicate Todo object.'''
+        """This tests the creation of a duplicate Todo object."""
         with test_database(TEST_DB, (User, Todo)):
             User.create(
                 username='username',
@@ -59,7 +59,7 @@ class UserModelTestCase(unittest.TestCase):
 
 
 class ViewTestCase(unittest.TestCase):
-    '''This sets up the Flask app for testing.'''
+    """This sets up the Flask app for testing."""
     def setUp(self):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
@@ -67,9 +67,9 @@ class ViewTestCase(unittest.TestCase):
 
 
 class LoginpageViewTestCase(ViewTestCase):
-    '''This tests that the login page looks correct.'''
+    """This tests that the login page looks correct."""
     def test_login_HTTP_status(self):
-        '''This ensures that the application's loginpage works.'''
+        """This ensures that the application's loginpage works."""
         with test_database(TEST_DB, (User, Todo)):
             result = self.app.get('/login')
             self.assertEqual(result.status_code, 200)
@@ -78,7 +78,7 @@ class LoginpageViewTestCase(ViewTestCase):
             self.assertNotIn("Confirm Password", result.data.decode())
 
     def test_login_form(self):
-        '''This tests to see if the LoginForm works.'''
+        """This tests to see if the LoginForm works."""
         with test_database(TEST_DB, (User, Todo)):
             User.user_create(
                 username='username',
@@ -92,7 +92,7 @@ class LoginpageViewTestCase(ViewTestCase):
             self.assertEqual(response.status_code, 302)
 
     def test_bad_login_form(self):
-        '''This tests to see if the LoginForm works.'''
+        """This tests to see if the LoginForm works."""
         with test_database(TEST_DB, (User, Todo)):
             User.user_create(
                 username='username',
@@ -105,30 +105,30 @@ class LoginpageViewTestCase(ViewTestCase):
             response = self.app.post('/login', data=form)
             self.assertEqual(response.status_code, 200)
             self.assertIn(
-                "The username or password you intered is incorrect",
+                "The username or password you interred is incorrect",
                 response.data.decode()
             )
 
 
 class HomepageViewTestCase(ViewTestCase):
-    '''This tests that the homepage looks correct.'''
+    """This tests that the homepage looks correct."""
     def test_homepage_HTTP_status(self):
-        '''This ensures that the application's homepage works.'''
+        """This ensures that the application's homepage works."""
         with test_database(TEST_DB, (User, Todo)):
             result = self.app.get('/')
             self.assertEqual(result.status_code, 200)
 
     def test_homepage_information(self):
-        '''This checks to see if the title and new task button is found'''
+        """This checks to see if the title and new task button is found"""
         with test_database(TEST_DB, (User, Todo)):
             result = self.app.get('/')
             self.assertIn("Add a New Task", result.data.decode())
 
 
 class RegisterViewTestCase(ViewTestCase):
-    '''This tests that the register page looks correct.'''
+    """This tests that the register page looks correct."""
     def test_register_HTTP_status(self):
-        '''This ensures that the application's register page works.'''
+        """This ensures that the application's register page works."""
         with test_database(TEST_DB, (User, Todo)):
             result = self.app.get('/register')
             self.assertEqual(result.status_code, 200)
@@ -136,7 +136,7 @@ class RegisterViewTestCase(ViewTestCase):
             self.assertIn("Confirm Password", result.data.decode())
 
     def test_register_form(self):
-        '''This tests to see if the RegisterForm works.'''
+        """This tests to see if the RegisterForm works."""
         with test_database(TEST_DB, (User, Todo)):
             self.app.get('/register')
             form = {'username': 'username',
@@ -149,7 +149,7 @@ class RegisterViewTestCase(ViewTestCase):
             self.assertTrue(User.get(User.username == 'username'))
 
     def test_bad_register_form(self):
-        '''This tests to see if the RegisterForm works.'''
+        """This tests to see if the RegisterForm works."""
         with test_database(TEST_DB, (User, Todo)):
             self.app.get('/register')
             form = {'username': 'username',
@@ -164,10 +164,10 @@ class RegisterViewTestCase(ViewTestCase):
 
 
 class APITestCase(ViewTestCase):
-    '''This ensures that the API is working correctly.'''
+    """This ensures that the API is working correctly."""
 
     def test_create_user(self):
-        '''This checks to see if create user via API works'''
+        """This checks to see if create user via API works"""
         with test_database(TEST_DB, (User, Todo)):
             data = {
                 'username': 'test',
@@ -202,7 +202,7 @@ class APITestCase(ViewTestCase):
             self.assertTrue(type(response.data) is bytes)
             self.assertEqual(
                 response_decoded,
-                {"error": "A user with that username already exsists"})
+                {"error": "A user with that username already exists"})
 
             # This checks the creation of a user with an invalid password
             data = {
@@ -223,7 +223,7 @@ class APITestCase(ViewTestCase):
                 {"error": "password and password_verification do not match"})
 
     def test_todo_list_get(self):
-        '''This checks to see if the TodoList GET api is working.'''
+        """This checks to see if the TodoList GET api is working."""
         with test_database(TEST_DB, (User, Todo)):
             Todo.create(
                 name='Plant some seeds in the garden.'
@@ -245,7 +245,7 @@ class APITestCase(ViewTestCase):
                 [{"id": 1, "name": "Plant some seeds in the garden."}])
 
     def test_todo_list_post(self):
-        '''This checks to see if the TodoList POST api is working.'''
+        """This checks to see if the TodoList POST api is working."""
         with test_database(TEST_DB, (User, Todo)):
             User.user_create(
                 username='username',
@@ -273,14 +273,14 @@ class APITestCase(ViewTestCase):
             self.assertEqual(todo_object.name, 'Going to the grocery store')
 
     def test_todo_list_post_unauthorized(self):
-        '''This checks to see if the TodoList POST api is working.'''
+        """This checks to see if the TodoList POST api is working."""
         with test_database(TEST_DB, (User, Todo)):
             data = {'name': 'Going to the grocery store'}
             response = self.app.post(TODO_LIST_URL, data=data)
             self.assertEqual(response.status_code, 401)
 
     def test_todo_put(self):
-        '''This checks to see if the Todo PUT api is working.'''
+        """This checks to see if the Todo PUT api is working."""
         with test_database(TEST_DB, (User, Todo)):
             User.user_create(
                 username='username',
@@ -310,7 +310,7 @@ class APITestCase(ViewTestCase):
                 {"id": 1, "name": "Water the seeds in the garden."})
 
     def test_todo_put_token(self):
-        '''This checks to see if the Todo PUT api is working.'''
+        """This checks to see if the Todo PUT api is working."""
         with test_database(TEST_DB, (User, Todo)):
             user = User.user_create(
                 username='username',
@@ -343,7 +343,7 @@ class APITestCase(ViewTestCase):
                 {"id": 1, "name": "Water the seeds in the garden."})
 
     def test_todo_put_unauthorized(self):
-        '''This checks to see if the Todo PUT api is working.'''
+        """This checks to see if the Todo PUT api is working."""
         with test_database(TEST_DB, (User, Todo)):
             Todo.create(
                 name='Plant some seeds in the garden.'
@@ -354,7 +354,7 @@ class APITestCase(ViewTestCase):
             self.assertEqual(response.status_code, 401)
 
     def test_todo_delete(self):
-        '''This checks to see if the Todo DELETE API is working.'''
+        """This checks to see if the Todo DELETE API is working."""
         with test_database(TEST_DB, (User, Todo)):
             User.user_create(
                 username='username',
@@ -372,7 +372,7 @@ class APITestCase(ViewTestCase):
             self.assertEqual(Todo.select().count(), 0)
 
     def test_todo_delete_token(self):
-        '''This checks to see if the Todo DELETE API is working.'''
+        """This checks to see if the Todo DELETE API is working."""
         with test_database(TEST_DB, (User, Todo)):
             user = User.user_create(
                 username='username',
@@ -393,7 +393,7 @@ class APITestCase(ViewTestCase):
             self.assertEqual(Todo.select().count(), 0)
 
     def test_todo_delete_unauthorized(self):
-        '''This checks to see if the Todo DELETE API is working.'''
+        """This checks to see if the Todo DELETE API is working."""
         with test_database(TEST_DB, (User, Todo)):
             Todo.create(
                 name='Plant some seeds in the garden.'

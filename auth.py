@@ -11,7 +11,7 @@ auth = MultiAuth(token_auth, basic_auth)
 
 @basic_auth.get_password
 def get_password(username):
-    '''gets the provide user's password'''
+    """gets the provide user's password"""
     user = models.User.get(username=username)
     if user is not None:
         return user.password
@@ -20,7 +20,7 @@ def get_password(username):
 
 @basic_auth.verify_password
 def verify_password(username, password):
-    '''Tries to authenticate a user and if so g.users them'''
+    """Tries to authenticate a user and if so g.users them"""
     try:
         user = models.User.get(models.User.username == username)
         if not user.verify_password(password):
@@ -34,7 +34,7 @@ def verify_password(username, password):
 
 @token_auth.verify_token
 def verify_token(token):
-    '''Sends the token to the User model for verification'''
+    """Sends the token to the User model for verification"""
     # Not having these two lines of code bellow gave me tons of trouble
     # to figure out what was going on.
     if not token and g.user.is_authenticated:

@@ -6,7 +6,7 @@ from wtforms.validators import (DataRequired, ValidationError, Length,
 from models import User
 
 
-def user_exists(form, field):
+def user_exists(field):
     """This checks the database to see if a user already exists
     in the database. If so a ValidationError is raised."""
     if User.select().where(User.username == field.data).exists():

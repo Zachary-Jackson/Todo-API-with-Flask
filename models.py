@@ -14,7 +14,7 @@ DATABASE = SqliteDatabase('todos.sqlite')
 
 
 class Todo(Model):
-    '''This is the Model class for a ToDo item.'''
+    """This is the Model class for a ToDo item."""
     name = CharField()
     created_at = DateTimeField(default=datetime.datetime.now)
 
@@ -30,8 +30,8 @@ class User(Model, UserMixin):
         database = DATABASE
 
     @classmethod
-    def user_create(cls, username, password, **kwargs):
-        '''This tries to create a User unless the user is already created.'''
+    def user_create(cls, username, password):
+        """This tries to create a User unless the user is already created."""
         try:
             cls.select().where(cls.username**username).get()
         except cls.DoesNotExist:
@@ -40,11 +40,11 @@ class User(Model, UserMixin):
             user.save()
             return user
         else:
-            raise Exception("A user with that username already exsists.")
+            raise Exception("A user with that username already exists.")
 
     @staticmethod
     def verify_auth_token(token):
-        '''This checks to see if the given token is correct.'''
+        """This checks to see if the given token is correct."""
         serializer = Serializer(config.SECRET_KEY)
         try:
             data = serializer.loads(token)
@@ -56,15 +56,15 @@ class User(Model, UserMixin):
 
     @staticmethod
     def create_password(password):
-        '''This hashes a given password.'''
+        """This hashes a given password."""
         return HASHER.hash(password)
 
     def verify_password(self, password):
-        '''This checks that a given password and the user's password match.'''
+        """This checks that a given password and the user's password match."""
         return HASHER.verify(self.password, password)
 
     def generate_auth_token(self, expires=36000):
-        '''This genereates an authentication token'''
+        """This genereates an authentication token"""
         serializer = Serializer(config.SECRET_KEY, expires_in=expires)
         return serializer.dumps({'id': self.id})
 
